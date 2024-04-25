@@ -5,98 +5,125 @@
 using namespace std;
 
 int pow2(int n) {
-    int result = 1;
+    int resultado = 1;
     for (int i = 0; i < n; i++) {
-        result *= 2;
+        resultado *= 2;
     }
-    return result;
+    return resultado;
 }
 
 class Node {
 public:
-    int data;
-    Node* left;
-    Node* right;
+    int datos;
+    Node* izquierda;
+    Node* derecha;
 
-    Node(int data) {
-        this->data = data;
-        this->left = this->right = nullptr;
+    Node(int datos) {
+        this->datos = datos;
+        this->izquierda = this->derecha = nullptr;
     }
 };
 
-Node* insert_node(Node* node, int data, list<Node*>& insertion_order) {
+Node* insertar_nodo(Node* node, int datos, list<Node*>& insertion_order) {
     if (node == nullptr) {
-        node = new Node(data);
+        node = new Node(datos);
         insertion_order.push_back(node);
-    } else if (data < node->data) {
-        node->left = insert_node(node->left, data, insertion_order);
+    } else if (datos < node->datos) {
+        node->izquierda = insertar_nodo(node->izquierda, datos, insertion_order);
     } else {
-        node->right = insert_node(node->right, data, insertion_order);
+        node->derecha = insertar_nodo(node->derecha, datos, insertion_order);
     }
     return node;
 }
 
-Node* build_tree(list<Node*>& insertion_order, Node*& root) {
-    int data;
-    cout << "Ingrese los datos del árbol (ingrese 0 para terminar): ";
+Node* arbol(list<Node*>& insertion_order, Node*& root) {
+    int datos;
+    cout << "Ingrese los datos del arbol (ingrese 0 para terminar): ";
     while (true) {
-        cin >> data;
-        if (data == 0) {
+        cin >> datos;
+        if (datos == 0) {
             break;
         }
         if (root == nullptr) {
-            root = new Node(data);
+            root = new Node(datos);
         } else {
-            insert_node(root, data, insertion_order);
+            insertar_nodo(root, datos, insertion_order);
         }
     }
     return root;
 }
 
-int get_max_level(Node* node) {
+int max(Node* node) {
     if (node == nullptr) {
         return 0;
     }
-    int left_level = get_max_level(node->left);
-    int right_level = get_max_level(node->right);
-    return max(left_level, right_level) + 1;
+    int nizquierda = max(node->izquierda);
+    int nderecha = max(node->derecha);
+    return max(nizquierda, nderecha) + 1;
 }
 
-int get_level(Node* node) {
+int obtener_level(Node* node) {
     if (node == nullptr) {
         return -1;
     }
-    if (node->left == nullptr && node->right == nullptr) {
+    if (node->izquierda == nullptr && node->derecha == nullptr) {
         return 0;
     }
-    int left_level = get_level(node->left);
-    int right_level = get_level(node->right);
-    return max(left_level, right_level) + 1;
+    int nizquierda = obtener_level(node->izquierda);
+    int nderecha = obtener_level(node->derecha);
+    return max(nizquierda, nderecha) + 1;
 }
 
-void print_tree_level(Node* node, int level, int max_level) {
+void imprimir_arbol_level(Node* node, int level, int max_level) {
     if (node == nullptr) {
         return;
     }
     if (level == 1) {
-        cout << node->data << " ";
+        cout << node->datos << " ";
     } else if (level <= max_level) {
-        print_tree_level(node->left, level - 1, max_level);
-        print_tree_level(node->right, level - 1, max_level);
+        imprimir_arbol_level(node->izquierda, level - 1, max_level);
+        imprimir_arbol_level(node->derecha, level - 1, max_level);
     }
 }
 
-void print_tree(Node* node) {
-    int max_level = get_max_level(node);
+void imprimir_arbol(Node* node) {
+    int max_level = max(node);
     for (int level = 1; level <= max_level; level++) {
-        print_tree_level(node, level, max_level);
+        imprimir_arbol_level(node, level, max_level);
         cout << endl;
     }
 }
 
-void print_insertion_order(list<Node*>& insertion_order) {
+void imprimir_arbol_inorden(Node* node) {
+    if (node == nullptr) {
+        return;
+    }
+    imprimir_arbol_inorden(node->izquierda);
+    cout << node->datos << " ";
+    imprimir_arbol_inorden(node->derecha);
+}
+
+void imprimir_arbol_preorden(Node* node) {
+    if (node == nullptr) {
+        return;
+    }
+    cout << node->datos << " ";
+    imprimir_arbol_preorden(node->izquierda);
+    imprimir_arbol_preorden(node->derecha);
+}
+
+void imprimir_arbol_postorden(Node* node) {
+    if (node == nullptr) {
+        return;
+    }
+    imprimir_arbol_postorden(node->izquierda);
+    imprimir_arbol_postorden(node->derecha);
+    cout << node->datos << " ";
+}
+
+void imprimir_orden_insercion(list<Node*>& insertion_order) {
     for (auto node : insertion_order) {
-        cout << node->data << " ";
+        cout << node->datos << " ";
     }
     cout << endl;
 }
@@ -104,11 +131,20 @@ void print_insertion_order(list<Node*>& insertion_order) {
 int main() {
     Node* root = nullptr;
     list<Node*> insertion_order;
-    build_tree(insertion_order, root);
+    arbol(insertion_order, root);
     cout << "Arbol en forma de imagen: " << endl;
-    print_tree(root);
+    imprimir_arbol(root);
     cout << "Orden de insercion: " << endl;
-    print_insertion_order(insertion_order);
+    imprimir_orden_insercion(insertion_order);
+    cout << "Orden inorden: " << endl;
+    imprimir_arbol_inorden(root);
+    cout << endl;
+    cout << "Orden preorden: " << endl;
+    imprimir_arbol_preorden(root);
+    cout << endl;
+    cout << "Orden postorden: " << endl;
+    imprimir_arbol_postorden(root);
+    cout << endl;
 
     return 0;
 }
